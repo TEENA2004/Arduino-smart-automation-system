@@ -1,0 +1,99 @@
+Project 1: Automatic Light and Temperature Based Control System 
+Using LDR and DHT11 Sensor 
+// Fan + LED control with LDR auto-calibration (for R_fixed ≈ 1.5kΩ) 
+// Pins: 
+//  A0  -> LDR voltage divider midpoint 
+//  D2  -> DHT11 data 
+//  D8  -> Fan control (via transistor base + base resistor) 
+//  D9  -> LED 
+#include <DHT.h> 
+#define DHTPIN 2 
+#define DHTTYPE DHT11 
+DHT dht(DHTPIN, DHTTYPE); 
+const int ldrPin = A0; 
+const int ledPin = 9; 
+const int fanPin = 8; 
+const unsigned long calibMillis = 5000UL; // 5 seconds calibration 
+int minLdr = 1023; 
+int maxLdr = 0; 
+int threshold = 300; // fallback threshold if calibration fails 
+// smoothing (moving average) 
+const int SMOOTH_N = 6; 
+int smoothBuf[SMOOTH_N]; 
+int smoothIdx = 0; 
+long smoothSum = 0; 
+void setup() { 
+Serial.begin(9600); 
+dht.begin(); 
+
+ 
+ 
+ pinMode(ledPin, OUTPUT); 
+  pinMode(fanPin, OUTPUT); 
+  digitalWrite(ledPin, LOW); 
+  digitalWrite(fanPin, LOW); 
+// initialize smoothing buffer 
+  for (int i = 0; i < SMOOTH_N; ++i) { 
+    smoothBuf[i] = analogRead(ldrPin); 
+    smoothSum += smoothBuf[i]; 
+  } 
+ // Auto-calibration 
+  unsigned long start = millis(); 
+  Serial.println(F("Auto-calibrating LDR for 5 seconds...")); 
+  while (millis() - start < calibMillis) { 
+    int v = analogRead(ldrPin); 
+    if (v < minLdr) minLdr = v; 
+    if (v > maxLdr) maxLdr = v; 
+    Serial.print(F("Calib read: ")); 
+    Serial.println(v); 
+    delay(200); 
+  } 
+ // Safety: if max/min still default, set reasonable defaults 
+  if (minLdr == 1023) minLdr = 0; 
+  if (maxLdr == 0) maxLdr = 1023; 
+ // Choose midpoint as threshold, but bias slightly toward 'dark' if needed 
+  threshold = (minLdr + maxLdr) / 2; 
+ 
+  Serial.println(F("Calibration complete.")); 
+  Serial.print(F("minLdr = ")); Serial.print(minLdr); 
+  Serial.print(F("   maxLdr = ")); Serial.print(maxLdr); 
+  Serial.print(F("   threshold = ")); Serial.println(threshold); 
+ 
+Serial.println(F("If LED logic seems inverted, either flip threshold logic or wiring.")); 
+delay(500); 
+} 
+void loop() { 
+// Read & smooth LDR 
+int raw = analogRead(ldrPin); 
+smoothSum -= smoothBuf[smoothIdx]; 
+smoothBuf[smoothIdx] = raw; 
+smoothSum += smoothBuf[smoothIdx]; 
+smoothIdx = (smoothIdx + 1) % SMOOTH_N; 
+int ldrValue = smoothSum / SMOOTH_N; 
+// Read temperature (DHT) 
+float temp = dht.readTemperature(); 
+bool tempValid = !isnan(temp); 
+// LED control (dark -> LED ON) 
+// If your wiring inverts (LED wired to Vcc side), reverse logic 
+if (ldrValue < threshold) { 
+digitalWrite(ledPin, HIGH); 
+} else { 
+digitalWrite(ledPin, LOW); 
+} 
+// Fan control based on temperature 
+if (tempValid && temp > 15.0) { 
+digitalWrite(fanPin, HIGH); // transistor will drive fan 
+} else { 
+digitalWrite(fanPin, LOW); 
+} 
+// Serial output for debugging 
+Serial.print(F("LDR(smoothed)=")); Serial.print(ldrValue); 
+29 
+Serial.print(F("  thr=")); Serial.print(threshold); 
+Serial.print(F("  | temp=")); 
+if (tempValid) Serial.print(temp); 
+else Serial.print(F("N/A")); 
+Serial.print(F("  | LED=")); Serial.print(digitalRead(ledPin)); 
+Serial.print(F("  | FAN=")); Serial.println(digitalRead(fanPin)); 
+delay(500); 
+}
