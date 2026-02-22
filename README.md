@@ -1,15 +1,11 @@
-Arduino Smart Automation System
-Project 1 – Distance Based Automation
-Overview
+## Project 1 – Distance Based Automation
 
-This system uses an ultrasonic sensor to detect object distance and trigger automation based on predefined conditions.
+### Overview
+This system uses an ultrasonic sensor to detect object distance and automatically trigger an output device based on predefined distance conditions.
 
-Working Principle
-
-The ultrasonic sensor measures distance.
-When an object is detected within a specific range, the Arduino activates the connected output device.
-
-
+### Working Principle
+The ultrasonic sensor continuously measures the distance of nearby objects.  
+When an object is detected within a specific range, the Arduino activates the connected output device automatically.
 ---
 
 ## Project 2 – Temperature Based Fan Automation
