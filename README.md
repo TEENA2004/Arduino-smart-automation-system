@@ -1,2 +1,10 @@
-# Arduino-smart-automation-system
-Smart automation system built using Arduino, ultrasonic sensor, and DHT sensor to automatically control devices like fan based on environmental conditions. The system detects distance and temperature/humidity to trigger automated actions. Includes physical implementation and circuit design.
+Arduino Smart Automation System
+Project 1 – Distance Based Automation
+Overview
+
+This system uses an ultrasonic sensor to detect object distance and trigger automation based on predefined conditions.
+
+Working Principle
+
+The ultrasonic sensor measures distance.
+When an object is detected within a specific range, the Arduino activates the connected output device.
