@@ -1,4 +1,4 @@
-#### Project 1 – Automatic Light and Temperature Based Control System Using LDR and DHT11 Sensor
+### Project 1 – Automatic Light and Temperature Based Control System Using LDR and DHT11 Sensor
 
 ### Working Principle:
 This project automatically controls lighting and temperature-based devices using sensor data.
@@ -8,7 +8,7 @@ The DHT11 sensor measures temperature and humidity.
 If the temperature exceeds a predefined threshold, the cooling device (fan) is activated automatically.
 This system improves energy efficiency and enables smart environmental monitoring.
 
-### Components Used:
+## Components Used:
 
 1. Arduino Uno
 2. LDR (Light Dependent Resistor)
